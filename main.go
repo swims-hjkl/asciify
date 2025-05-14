@@ -1,13 +1,16 @@
 package main
 
 import (
+	"errors"
+	"flag"
+	"fmt"
 	"image"
 	"image/color"
 	_ "image/jpeg"
 	"image/png"
+	"io/fs"
 	"os"
 	"slices"
-	"fmt"
 )
 
 func getHeight(original image.Image, desiredWidth uint) uint {
@@ -98,9 +101,34 @@ func grayscaleImageToAscii(originalImage image.Image) {
 	}
 }
 
+func fileNotExists(path string) bool {
+	_, err := os.Stat(path)
+	return err != nil && errors.Is(err, fs.ErrNotExist)
+}
+
+func parseArguments() (string, int) {
+	flagPath := flag.String("path", "", "- (required) valid path to the image")
+	flagWidth := flag.Int("width", 10, "- width of ascii image in integer >= 10 (default 10)")
+	flag.Parse()
+	path := *flagPath
+	width := *flagWidth
+	if fileNotExists(path) {
+		fmt.Println("Not a valid \"path\" value!")
+		flag.Usage()	
+		os.Exit(1)
+	}
+	if width < 10 {
+		fmt.Println("Not a valid \"width\" value!")
+		flag.Usage()	
+		os.Exit(1)
+	}
+	return path, width
+}
+
 func main() {
-	originalImage := readImage("test.png")
-	resizedImage := resizeImage(originalImage, 150)
+	path, width := parseArguments()
+	originalImage := readImage(path)
+	resizedImage := resizeImage(originalImage, width)
 	greyScaledImage := imageToGrayScale(resizedImage)
 	grayscaleImageToAscii(greyScaledImage)
 }
