@@ -10,13 +10,7 @@ import (
 	"image/png"
 	"io/fs"
 	"os"
-	"slices"
 )
-
-func getHeight(original image.Image, desiredWidth uint) uint {
-	aspectRatio := uint(original.Bounds().Dy() / original.Bounds().Dx())
-	return desiredWidth * aspectRatio
-}
 
 func imageToGrayScale(inputImage image.Image) image.Image {
 	newImage := image.NewGray(inputImage.Bounds())
@@ -29,19 +23,6 @@ func imageToGrayScale(inputImage image.Image) image.Image {
 		}
 	}
 	return newImage
-}
-
-func getUniqueColoursInGrayScale(inputImage image.Image) []uint32 {
-	pixels := []uint32{}
-	for rowIdx := range inputImage.Bounds().Dy() {
-		for colIdx := range inputImage.Bounds().Dx() {
-			R, _, _, _ := inputImage.At(rowIdx, colIdx).RGBA()
-			pixels = append(pixels, uint32(R/257))
-		}
-	}
-	slices.Sort(pixels)
-	pixels = slices.Compact(pixels)
-	return pixels
 }
 
 func writePNGImage(inputImage image.Image, outputPath string) {
@@ -108,7 +89,7 @@ func fileNotExists(path string) bool {
 
 func parseArguments() (string, int) {
 	flagPath := flag.String("path", "", "- (required) valid path to the image")
-	flagWidth := flag.Int("width", 10, "- width of ascii image in integer >= 10 (default 10)")
+	flagWidth := flag.Int("width", 150, "- width of ascii image in integer >= 10 (default 150)")
 	flag.Parse()
 	path := *flagPath
 	width := *flagWidth
