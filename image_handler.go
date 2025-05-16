@@ -1,14 +1,11 @@
-package main
+package asciify
 
 import (
-	"errors"
-	"flag"
 	"fmt"
 	"image"
 	"image/color"
 	_ "image/jpeg"
 	"image/png"
-	"io/fs"
 	"os"
 )
 
@@ -17,7 +14,7 @@ func imageToGrayScale(inputImage image.Image) image.Image {
 	for rowIdx := range inputImage.Bounds().Dy() {
 		for colIdx := range inputImage.Bounds().Dx() {
 			R, G, B, _ := inputImage.At(colIdx, rowIdx).RGBA()
-			r, g, b := float32(R / 257), float32(G / 257), float32(B / 257)
+			r, g, b := float32(R/257), float32(G/257), float32(B/257)
 			greyPixel := uint8((r * 0.2989) + (g * 0.5870) + (b * 0.1140))
 			newImage.SetGray(colIdx, rowIdx, color.Gray{greyPixel})
 		}
@@ -47,17 +44,19 @@ func readImage(sourcePath string) image.Image {
 	return img
 }
 
-func resizeImage(originalImage image.Image, RW int) image.Image{
+func resizeImage(originalImage image.Image, RW int) image.Image {
 	OW := originalImage.Bounds().Dx()
 	OH := originalImage.Bounds().Dy()
-	RH := int(float64(RW) * float64(OH)/float64(OW))/2
+	RH := int(float64(RW)*float64(OH)/float64(OW)) / 2
 	resizedImage := image.NewRGBA(image.Rect(0, 0, RW, RH))
+	scaleX := float64(OW) / float64(RW)
+	scaleY := float64(OH) / float64(RH)
 	for rowIdx := range resizedImage.Bounds().Dy() {
 		for colIdx := range resizedImage.Bounds().Dx() {
-			originalY := rowIdx * (OH/RH)
-			originalX := colIdx * (OW/RW) 
+			originalX := int(float64(colIdx) * scaleX)
+			originalY := int(float64(rowIdx) * scaleY)
 			R, G, B, A := originalImage.At(originalX, originalY).RGBA()
-			resizedImage.SetRGBA(colIdx, rowIdx, color.RGBA{R:uint8(R >> 8), G:uint8(G >> 8), B:uint8(B >> 8), A:uint8(A >> 8)})
+			resizedImage.SetRGBA(colIdx, rowIdx, color.RGBA{R: uint8(R >> 8), G: uint8(G >> 8), B: uint8(B >> 8), A: uint8(A >> 8)})
 		}
 	}
 	return resizedImage
@@ -65,7 +64,7 @@ func resizeImage(originalImage image.Image, RW int) image.Image{
 
 func grayscaleImageToAscii(originalImage image.Image) {
 
-	ascii_art_chars := "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'."
+	ascii_art_chars := "$@&M*oahwmO0UYcvf/(1{[]-_+~<>i!I;,`'."
 	character_index_divide_factor := float64(256 / len(ascii_art_chars))
 
 	for rowIdx := 0; rowIdx < originalImage.Bounds().Dy(); rowIdx++ {
@@ -80,36 +79,4 @@ func grayscaleImageToAscii(originalImage image.Image) {
 		}
 		fmt.Println("")
 	}
-}
-
-func fileNotExists(path string) bool {
-	_, err := os.Stat(path)
-	return err != nil && errors.Is(err, fs.ErrNotExist)
-}
-
-func parseArguments() (string, int) {
-	flagPath := flag.String("path", "", "- (required) valid path to the image")
-	flagWidth := flag.Int("width", 150, "- width of ascii image in integer >= 10 (default 150)")
-	flag.Parse()
-	path := *flagPath
-	width := *flagWidth
-	if fileNotExists(path) {
-		fmt.Println("Not a valid \"path\" value!")
-		flag.Usage()	
-		os.Exit(1)
-	}
-	if width < 10 {
-		fmt.Println("Not a valid \"width\" value!")
-		flag.Usage()	
-		os.Exit(1)
-	}
-	return path, width
-}
-
-func main() {
-	path, width := parseArguments()
-	originalImage := readImage(path)
-	resizedImage := resizeImage(originalImage, width)
-	greyScaledImage := imageToGrayScale(resizedImage)
-	grayscaleImageToAscii(greyScaledImage)
 }
