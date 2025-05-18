@@ -62,21 +62,26 @@ func resizeImage(originalImage image.Image, RW int) image.Image {
 	return resizedImage
 }
 
-func grayscaleImageToAscii(originalImage image.Image) {
+func grayscaleImageToAscii(originalImage image.Image) string {
 
-	ascii_art_chars := "$@&M*oahwmO0UYcvf/(1{[]-_+~<>i!I;,`'."
-	character_index_divide_factor := float64(256 / len(ascii_art_chars))
+	asciiArtChars := "$@&M*oahwmO0UYcvf/(1{[]-_+~<>i!I;,`'."
+	characterIndexDivideFactor := float64(256 / len(asciiArtChars))
+
+	outputString := ""
 
 	for rowIdx := 0; rowIdx < originalImage.Bounds().Dy(); rowIdx++ {
+		rowString := ""
 		for colIdx := 0; colIdx < originalImage.Bounds().Dx(); colIdx++ {
 			R, _, _, _ := originalImage.At(colIdx, rowIdx).RGBA()
 			R8 := uint8(R >> 8)
-			idx := int(float64(R8) / character_index_divide_factor)
-			if idx >= len(ascii_art_chars) {
-				idx = len(ascii_art_chars) - 1
+			idx := int(float64(R8) / characterIndexDivideFactor)
+			if idx >= len(asciiArtChars) {
+				idx = len(asciiArtChars) - 1
 			}
-			fmt.Print(string(ascii_art_chars[idx]))
+			rowString = rowString + (string(asciiArtChars[idx]))
 		}
-		fmt.Println("")
+		outputString = outputString + rowString + "\n"
 	}
+
+	return outputString
 }

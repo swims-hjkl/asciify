@@ -1,6 +1,6 @@
 package asciify
 
-func ConvertImageToAscii(imagePath string, width int) {
+func ConvertImageToAscii(imagePath string, width int) string {
 	if fileNotExists(imagePath) {
 		panic("imagePath is not valid")
 	}
@@ -10,5 +10,6 @@ func ConvertImageToAscii(imagePath string, width int) {
 	originalImage := readImage(imagePath)
 	resizedImage := resizeImage(originalImage, width)
 	greyscaledImage := imageToGrayScale(resizedImage)
-	grayscaleImageToAscii(greyscaledImage)
+	asciiRepString := grayscaleImageToAscii(greyscaledImage)
+	return asciiRepString
 }
