@@ -1,15 +1,20 @@
 package asciify
 
-func ConvertImageToAscii(imagePath string, width int) string {
+import "errors"
+
+func ConvertImageToAscii(imagePath string, width int) (string, error) {
 	if fileNotExists(imagePath) {
-		panic("imagePath is not valid")
+		return "", errors.New("imagePath is not valid")
 	}
 	if width < 10 {
-		panic("width cannot be lesser than 10")
+		return "", errors.New("width cannot be lesser than 10")
 	}
-	originalImage := readImage(imagePath)
+	originalImage, err := readImage(imagePath)
+	if err != nil {
+		return "", err
+	}
 	resizedImage := resizeImage(originalImage, width)
 	greyscaledImage := imageToGrayScale(resizedImage)
 	asciiRepString := grayscaleImageToAscii(greyscaledImage)
-	return asciiRepString
+	return asciiRepString, nil
 }

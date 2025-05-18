@@ -1,7 +1,7 @@
 package asciify
 
 import (
-	"fmt"
+	"errors"
 	"image"
 	"image/color"
 	_ "image/jpeg"
@@ -22,26 +22,27 @@ func imageToGrayScale(inputImage image.Image) image.Image {
 	return newImage
 }
 
-func writePNGImage(inputImage image.Image, outputPath string) {
+func writePNGImage(inputImage image.Image, outputPath string) error {
 	file, err := os.Create(outputPath)
 	if err != nil {
-		panic("error creating output image!")
+		return errors.New("error creating output image!")
 	}
 	defer file.Close()
 	png.Encode(file, inputImage)
+	return nil
 }
 
-func readImage(sourcePath string) image.Image {
+func readImage(sourcePath string) (image.Image, error) {
 	file, err := os.Open(sourcePath)
 	if err != nil {
-		panic("something went wrong reading the file")
+		return nil, errors.New("something went wrong reading the file")
 	}
 	defer file.Close()
 	img, _, err := image.Decode(file)
 	if err != nil {
-		panic("something went wrong decoding the image")
+		return nil, errors.New("something went wrong decoding the image")
 	}
-	return img
+	return img, nil
 }
 
 func resizeImage(originalImage image.Image, RW int) image.Image {
