@@ -3,24 +3,10 @@ package asciify
 import (
 	"errors"
 	"image"
-	"image/color"
 	_ "image/jpeg"
 	"image/png"
 	"os"
 )
-
-func imageToGrayScale(inputImage image.Image) image.Image {
-	newImage := image.NewGray(inputImage.Bounds())
-	for rowIdx := range inputImage.Bounds().Dy() {
-		for colIdx := range inputImage.Bounds().Dx() {
-			R, G, B, _ := inputImage.At(colIdx, rowIdx).RGBA()
-			r, g, b := float32(R/257), float32(G/257), float32(B/257)
-			greyPixel := uint8((r * 0.2989) + (g * 0.5870) + (b * 0.1140))
-			newImage.SetGray(colIdx, rowIdx, color.Gray{greyPixel})
-		}
-	}
-	return newImage
-}
 
 func writePNGImage(inputImage image.Image, outputPath string) error {
 	file, err := os.Create(outputPath)
@@ -45,37 +31,27 @@ func readImage(sourcePath string) (image.Image, error) {
 	return img, nil
 }
 
-func resizeImage(originalImage image.Image, RW int) image.Image {
+func imageToAscii(originalImage image.Image, RW int) string {
 	OW := originalImage.Bounds().Dx()
 	OH := originalImage.Bounds().Dy()
-	RH := int(float64(RW)*float64(OH)/float64(OW)) / 2
+	RH := int(float32(RW)*float32(OH)/float32(OW)) / 2
 	resizedImage := image.NewRGBA(image.Rect(0, 0, RW, RH))
-	scaleX := float64(OW) / float64(RW)
-	scaleY := float64(OH) / float64(RH)
-	for rowIdx := range resizedImage.Bounds().Dy() {
-		for colIdx := range resizedImage.Bounds().Dx() {
-			originalX := int(float64(colIdx) * scaleX)
-			originalY := int(float64(rowIdx) * scaleY)
-			R, G, B, A := originalImage.At(originalX, originalY).RGBA()
-			resizedImage.SetRGBA(colIdx, rowIdx, color.RGBA{R: uint8(R >> 8), G: uint8(G >> 8), B: uint8(B >> 8), A: uint8(A >> 8)})
-		}
-	}
-	return resizedImage
-}
-
-func grayscaleImageToAscii(originalImage image.Image) string {
-
+	scaleX := float32(OW) / float32(RW)
+	scaleY := float32(OH) / float32(RH)
 	asciiArtChars := "$@&M*oahwmO0UYcvf/(1{[]-_+~<>i!I;,`'."
-	characterIndexDivideFactor := float64(256 / len(asciiArtChars))
+	characterIndexDivideFactor := float32(256 / len(asciiArtChars))
 
 	outputString := ""
 
-	for rowIdx := 0; rowIdx < originalImage.Bounds().Dy(); rowIdx++ {
+	for rowIdx := range resizedImage.Bounds().Dy() {
 		rowString := ""
-		for colIdx := 0; colIdx < originalImage.Bounds().Dx(); colIdx++ {
-			R, _, _, _ := originalImage.At(colIdx, rowIdx).RGBA()
-			R8 := uint8(R >> 8)
-			idx := int(float64(R8) / characterIndexDivideFactor)
+		for colIdx := range resizedImage.Bounds().Dx() {
+			originalX := int(float32(colIdx) * scaleX)
+			originalY := int(float32(rowIdx) * scaleY)
+			R, G, B, _ := originalImage.At(originalX, originalY).RGBA()
+			r, g, b := float32(R>>8), float32(G>>8), float32(B>>8)
+			grayPixel := (r * 0.2989) + (g * 0.5870) + (b * 0.1140)
+			idx := int(grayPixel / characterIndexDivideFactor)
 			if idx >= len(asciiArtChars) {
 				idx = len(asciiArtChars) - 1
 			}
@@ -83,6 +59,5 @@ func grayscaleImageToAscii(originalImage image.Image) string {
 		}
 		outputString = outputString + rowString + "\n"
 	}
-
 	return outputString
 }

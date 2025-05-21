@@ -13,8 +13,6 @@ func ConvertImageToAscii(imagePath string, width int) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	resizedImage := resizeImage(originalImage, width)
-	greyscaledImage := imageToGrayScale(resizedImage)
-	asciiRepString := grayscaleImageToAscii(greyscaledImage)
+	asciiRepString := imageToAscii(originalImage, width)
 	return asciiRepString, nil
 }

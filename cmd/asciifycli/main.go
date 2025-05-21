@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	path := flag.String("path", "", "A valid path to the image")
+	path := flag.String("path", "", "Path to a valid the image")
 	width := flag.Int("width", 150, "Width of the output sequence of characters (default 150)")
 	flag.Parse()
 	asciiRepString, err := asciify.ConvertImageToAscii(*path, *width)
