@@ -6,3 +6,6 @@ build:
 	mkdir -p $(BIN_DIR)
 	go test
 	go build -o $(BIN_DIR)/$(CLI_NAME) $(CLI_PATH)
+
+benchmark:
+	go test -bench=.
