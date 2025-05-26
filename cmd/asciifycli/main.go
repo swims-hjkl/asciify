@@ -14,7 +14,7 @@ func main() {
 	noConcurrency := flag.Bool("no-concurrency", false, "Switch off concurrency (optional - default false)")
 	flag.Parse()
 	if *noConcurrency {
-		asciiRepString, err := asciify.ConvertImageToAscii(*path, *width)
+		asciiRepString, err := asciify.ConvertImageToAscii(*path, *width, true)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n\n", err)
 			flag.Usage()
@@ -22,7 +22,7 @@ func main() {
 		}
 		fmt.Print(asciiRepString)
 	} else {
-		asciiRepString, err := asciify.ConvertImageToAsciiConcurrent(*path, *width)
+		asciiRepString, err := asciify.ConvertImageToAscii(*path, *width, false)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n\n", err)
 			flag.Usage()

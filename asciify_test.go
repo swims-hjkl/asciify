@@ -18,7 +18,7 @@ func TestImageToASCII(t *testing.T) {
 		t.Fatalf("failed to read expected output file: %v", err)
 	}
 
-	outputString, err := ConvertImageToAscii(testImagePath, 150)
+	outputString, err := ConvertImageToAscii(testImagePath, 150, true)
 	if err != nil {
 		t.Fatalf("failed to convert image to ascii: %v", err)
 	}
@@ -38,7 +38,7 @@ func TestImageToASCIIConcurrent(t *testing.T) {
 		t.Fatalf("failed to read expected output file: %v", err)
 	}
 
-	outputString, err := ConvertImageToAsciiConcurrent(testImagePath, 150)
+	outputString, err := ConvertImageToAscii(testImagePath, 150, false)
 	if err != nil {
 		t.Fatalf("failed to convert image to ascii: %v", err)
 	}
