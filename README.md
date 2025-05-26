@@ -10,7 +10,7 @@
 import "github.com/swims-hjkl/asciify"
 
 func main() {
-    asciiOutput, err := asciify.ConvertImageToAscii("testImage.png", 150)
+    asciiOutput, err := asciify.ConvertImageToAscii("testImage.png", 150, false)
 }
 ```
 
